@@ -2,20 +2,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar dataLayer para GTM
     window.dataLayer = window.dataLayer || [];
     
-    // Animações e interatividade
-    initAnimations();
+    // Detectar se é dispositivo móvel
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
+    // Animações e interatividade - otimizadas para mobile
+    initAnimations(isMobile);
     initButtonEffects();
     initScrollEffects();
-    initParticles();
+    
+    // Reduzir efeitos visuais em dispositivos móveis
+    if (!isMobile) {
+        initParticles();
+    } else {
+        // Versão simplificada de partículas para mobile
+        initLightParticles();
+    }
     
     // Tracking de eventos
     trackButtonClicks();
+    
+    // Otimização de imagens
+    lazyLoadImages();
 });
 
 // Inicializar animações
-function initAnimations() {
+function initAnimations(isMobile) {
     // Animação de entrada dos elementos
     const elementsToAnimate = document.querySelectorAll('.profile, .subtitle, .hero, .feature-box, .benefit-card, .bottom-cta');
+    
+    // Reduzir atraso entre animações em dispositivos móveis
+    const delay = isMobile ? 50 : 100;
     
     elementsToAnimate.forEach((element, index) => {
         element.style.opacity = '0';
@@ -25,55 +41,79 @@ function initAnimations() {
         setTimeout(() => {
             element.style.opacity = '1';
             element.style.transform = 'translateY(0)';
-        }, 100 * index);
+        }, delay * index);
     });
     
     // Animação de pulse para os botões CTA após um tempo
-    setTimeout(() => {
-        const ctaButtons = document.querySelectorAll('.cta-button');
-        ctaButtons.forEach(button => {
-            button.classList.add('pulse');
-            
-            // Remover a classe após a animação para permitir repetições
-            button.addEventListener('animationend', () => {
-                button.classList.remove('pulse');
+    // Verificar se o usuário prefere menos animações
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (!prefersReducedMotion) {
+        setTimeout(() => {
+            const ctaButtons = document.querySelectorAll('.cta-button');
+            ctaButtons.forEach(button => {
+                button.classList.add('pulse');
                 
-                // Repetir a animação periodicamente
-                setInterval(() => {
-                    button.classList.add('pulse');
-                    button.addEventListener('animationend', () => {
-                        button.classList.remove('pulse');
-                    }, { once: true });
-                }, 10000); // Repetir a cada 10 segundos
-            }, { once: true });
-        });
-    }, 2000);
+                // Remover a classe após a animação para permitir repetições
+                button.addEventListener('animationend', () => {
+                    button.classList.remove('pulse');
+                    
+                    // Repetir a animação periodicamente - menos frequente em mobile
+                    const interval = isMobile ? 15000 : 10000;
+                    
+                    setInterval(() => {
+                        button.classList.add('pulse');
+                        button.addEventListener('animationend', () => {
+                            button.classList.remove('pulse');
+                        }, { once: true });
+                    }, interval); // Repetir a cada 10-15 segundos
+                }, { once: true });
+            });
+        }, isMobile ? 3000 : 2000); // Atrasar mais em dispositivos móveis
+    }
 }
 
 // Inicializar efeitos de botões
 function initButtonEffects() {
     const buttons = document.querySelectorAll('.cta-button, .feature-box, .benefit-card');
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
     buttons.forEach(button => {
-        // Efeito de hover
-        button.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-5px)';
-            this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
-        });
-        
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = '';
-            this.style.boxShadow = '';
-        });
-        
-        // Efeito de clique
-        button.addEventListener('mousedown', function() {
-            this.style.transform = 'scale(0.98)';
-        });
-        
-        button.addEventListener('mouseup', function() {
-            this.style.transform = '';
-        });
+        if (!isTouchDevice) {
+            // Efeito de hover apenas para dispositivos não-touch
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
+            
+            // Efeito de clique
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            button.addEventListener('mouseup', function() {
+                this.style.transform = '';
+            });
+        } else {
+            // Para dispositivos touch, adicionar feedback visual ao toque
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            }, { passive: true });
+            
+            button.addEventListener('touchend', function() {
+                this.style.transform = '';
+                
+                // Pequeno atraso para mostrar o efeito visual
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            }, { passive: true });
+        }
     });
 }
 
@@ -96,7 +136,7 @@ function initScrollEffects() {
         elementsToShow.forEach(element => {
             const elementPosition = element.getBoundingClientRect().top;
             
-            if (elementPosition < windowHeight - 100) {
+            if (elementPosition < windowHeight - 50) {
                 element.style.opacity = '1';
                 element.style.transform = 'translateY(0)';
             }
@@ -105,10 +145,12 @@ function initScrollEffects() {
     
     // Verificar posição inicial e adicionar listener para scroll
     checkPosition();
-    window.addEventListener('scroll', checkPosition);
+    
+    // Usar passive: true para melhorar desempenho
+    window.addEventListener('scroll', checkPosition, { passive: true });
 }
 
-// Inicializar partículas de fundo
+// Inicializar partículas de fundo (versão completa)
 function initParticles() {
     const particlesContainer = document.createElement('div');
     particlesContainer.className = 'particles';
@@ -116,6 +158,18 @@ function initParticles() {
     
     // Criar partículas
     for (let i = 0; i < 50; i++) {
+        createParticle(particlesContainer);
+    }
+}
+
+// Inicializar partículas de fundo (versão leve para mobile)
+function initLightParticles() {
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'particles';
+    document.body.appendChild(particlesContainer);
+    
+    // Criar menos partículas para dispositivos móveis
+    for (let i = 0; i < 15; i++) {
         createParticle(particlesContainer);
     }
 }
@@ -129,15 +183,15 @@ function createParticle(container) {
     const posX = Math.random() * 100;
     const posY = Math.random() * 100;
     
-    // Tamanho aleatório
-    const size = Math.random() * 5 + 1;
+    // Tamanho aleatório - menor em média para melhor desempenho
+    const size = Math.random() * 3 + 1;
     
-    // Velocidade aleatória
-    const speedX = (Math.random() - 0.5) * 0.2;
-    const speedY = (Math.random() - 0.5) * 0.2;
+    // Velocidade aleatória - mais lenta para melhor desempenho
+    const speedX = (Math.random() - 0.5) * 0.1;
+    const speedY = (Math.random() - 0.5) * 0.1;
     
     // Opacidade aleatória
-    const opacity = Math.random() * 0.5 + 0.1;
+    const opacity = Math.random() * 0.3 + 0.1;
     
     // Aplicar estilos
     particle.style.left = `${posX}%`;
@@ -154,6 +208,9 @@ function createParticle(container) {
 
 // Animar uma partícula
 function animateParticle(particle, x, y, speedX, speedY) {
+    // Usar requestAnimationFrame para melhor performance
+    let rafId;
+    
     function update() {
         // Atualizar posição
         x += speedX;
@@ -173,10 +230,53 @@ function animateParticle(particle, x, y, speedX, speedY) {
         particle.style.top = `${y}%`;
         
         // Continuar animação
-        requestAnimationFrame(update);
+        rafId = requestAnimationFrame(update);
     }
     
+    // Iniciar animação
     update();
+    
+    // Limpar animação quando a página não estiver visível
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(rafId);
+        } else {
+            update();
+        }
+    });
+}
+
+// Implementar lazy loading para imagens
+function lazyLoadImages() {
+    // Verificar se o navegador suporta IntersectionObserver
+    if ('IntersectionObserver' in window) {
+        const imgObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    const src = img.getAttribute('data-src');
+                    
+                    if (src) {
+                        img.src = src;
+                        img.removeAttribute('data-src');
+                    }
+                    
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        // Observar todas as imagens com atributo data-src
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imgObserver.observe(img);
+        });
+    } else {
+        // Fallback para navegadores que não suportam IntersectionObserver
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            img.src = img.getAttribute('data-src');
+            img.removeAttribute('data-src');
+        });
+    }
 }
 
 // Função para obter todos os parâmetros da URL de uma vez

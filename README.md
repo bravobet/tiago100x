@@ -1,12 +1,12 @@
-# Rafael Invest Landing Page
+# Tiago 100x Landing Page
 
-Landing page moderna e responsiva para o Rafael Invest, especialista em estratégias para o jogo Aviator.
+Landing page moderna e responsiva para o Tiago 100x, especialista em estratégias para o jogo Aviator.
 
 ## Estrutura do Projeto
 
 O projeto consiste em uma landing page simples e eficaz, com os seguintes componentes:
 
-- **Header**: Apresenta o perfil do Rafael Invest e um botão de chamada para ação (CTA) para entrar no grupo do Telegram.
+- **Header**: Apresenta o perfil do Tiago 100x e um botão de chamada para ação (CTA) para entrar no grupo do Telegram.
 - **Seção de Benefícios**: Destaca os principais benefícios de se juntar à comunidade.
 - **CTA Final**: Incentiva o usuário a tomar uma ação após conhecer os benefícios.
 - **Footer**: Contém informações de direitos autorais e avisos de jogo responsável.
@@ -14,8 +14,8 @@ O projeto consiste em uma landing page simples e eficaz, com os seguintes compon
 ## Arquivos Principais
 
 - `index.html`: Estrutura HTML da landing page
-- `rafael_styles.css`: Estilos CSS com tema vermelho e branco moderno
-- `rafael_script.js`: Scripts JavaScript para interatividade e animações
+- `tiago_styles.css`: Estilos CSS com tema vermelho e branco moderno
+- `tiago_script.js`: Scripts JavaScript para interatividade e animações
 - `assets/`: Pasta contendo imagens e outros recursos
 
 ## Funcionalidades
@@ -53,4 +53,4 @@ Esta landing page pode ser implantada facilmente usando serviços como:
 
 ## Créditos
 
-Desenvolvido para Rafael Invest, baseado no template original de landing page para especialistas em Aviator.
+Desenvolvido para Tiago 100x, baseado no template original de landing page para especialistas em Aviator.
