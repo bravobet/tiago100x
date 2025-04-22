@@ -258,7 +258,7 @@ function trackButtonClicks() {
             // Rastrear evento de clique no Facebook Pixel (Lead)
             if (typeof fbq === 'function') {
                 fbq('track', 'Lead', {
-                    content_name: 'Warley Viana - Grupo de Lives',
+                    content_name: 'Tiago 100x - Grupo de Lives',
                     content_category: 'Telegram Subscription'
                 });
             }
@@ -268,7 +268,7 @@ function trackButtonClicks() {
             
             // Dados para enviar ao n8n
             const data = {
-                expert: 'warleyviana'
+                expert: 'tiago100x'
             };
             
             // Adicionar todos os parâmetros da URL ao objeto data
